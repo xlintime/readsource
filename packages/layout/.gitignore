@@ -1,0 +1,14 @@
+.DS_Store
+.vscode
+.idea
+npm-debug.log
+yarn-error.log
+lerna-debug.log
+node_modules
+package-lock.json
+coverage
+lib
+es
+dist
+*.pem
+!mock-cert.pem
