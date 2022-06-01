@@ -3,12 +3,12 @@
  * @author shiwu.wyy@antfin.com
  */
 
-import { Edge, Model, PointTuple, ForceLayoutOptions } from "../types";
-import * as d3Force from "d3-force";
-import forceInABox from "./force-in-a-box";
-import { isArray, isFunction, isNumber, isObject } from "../../util";
-import { Base } from "../base";
-import { LAYOUT_MESSAGE } from "../constants";
+import { Edge, Model, PointTuple, ForceLayoutOptions } from '../types';
+import * as d3Force from 'd3-force';
+import forceInABox from './force-in-a-box';
+import { isArray, isFunction, isNumber, isObject } from '../../util';
+import { Base } from '../base';
+import { LAYOUT_MESSAGE } from '../constants';
 
 /**
  * 经典力导布局 force-directed
@@ -113,7 +113,7 @@ export class ForceLayout extends Base {
       tick() {},
       onLayoutEnd() {}, // 布局完成回调
       // 是否启用web worker。前提是在web worker里执行布局，否则无效
-      workerEnabled: false
+      workerEnabled: false,
     };
   }
 
@@ -125,9 +125,9 @@ export class ForceLayout extends Base {
     const self = this;
     self.nodes = data.nodes || [];
     const edges = data.edges || [];
-    self.edges = edges.map((edge) => {
+    self.edges = edges.map(edge => {
       const res: any = {};
-      const expectKeys = ["targetNode", "sourceNode", "startPoint", "endPoint"];
+      const expectKeys = ['targetNode', 'sourceNode', 'startPoint', 'endPoint'];
       Object.keys(edge).forEach((key: keyof Edge) => {
         if (!(expectKeys.indexOf(key) > -1)) {
           res[key] = edge[key];
@@ -167,7 +167,7 @@ export class ForceLayout extends Base {
           clusterForce
             .centerX(self.center[0])
             .centerY(self.center[1])
-            .template("force")
+            .template('force')
             .strength(self.clusterFociStrength);
           if (edges) {
             clusterForce.links(edges);
@@ -182,11 +182,11 @@ export class ForceLayout extends Base {
             .forceNodeSize(self.clusterNodeSize);
 
           self.clusterForce = clusterForce;
-          simulation.force("group", clusterForce);
+          simulation.force('group', clusterForce);
         }
         simulation
-          .force("center", d3Force.forceCenter(self.center[0], self.center[1]))
-          .force("charge", nodeForce)
+          .force('center', d3Force.forceCenter(self.center[0], self.center[1]))
+          .force('charge', nodeForce)
           .alpha(alpha)
           .alphaDecay(alphaDecay)
           .alphaMin(alphaMin);
@@ -208,21 +208,19 @@ export class ForceLayout extends Base {
             edgeForce.distance(self.linkDistance);
           }
           self.edgeForce = edgeForce;
-          simulation.force("link", edgeForce);
+          simulation.force('link', edgeForce);
         }
         if (self.workerEnabled && !isInWorker()) {
           // 如果不是运行在web worker里，不用web worker布局
           self.workerEnabled = false;
-          console.warn(
-            "workerEnabled option is only supported when running in web worker."
-          );
+          console.warn('workerEnabled option is only supported when running in web worker.');
         }
         if (!self.workerEnabled) {
           simulation
-            .on("tick", () => {
+            .on('tick', () => {
               self.tick();
             })
-            .on("end", () => {
+            .on('end', () => {
               self.ticking = false;
               if (self.onLayoutEnd) self.onLayoutEnd();
             });
@@ -239,7 +237,7 @@ export class ForceLayout extends Base {
                 nodes,
                 currentTick,
                 totalTicks,
-                type: LAYOUT_MESSAGE.TICK
+                type: LAYOUT_MESSAGE.TICK,
               },
               undefined as any
             );
@@ -274,7 +272,7 @@ export class ForceLayout extends Base {
             edgeForce.distance(self.linkDistance);
           }
           self.edgeForce = edgeForce;
-          simulation.force("link", edgeForce);
+          simulation.force('link', edgeForce);
         }
       }
       if (self.preventOverlap) {
@@ -306,12 +304,13 @@ export class ForceLayout extends Base {
     }
 
     if (!nodeSize) {
-      nodeSizeFunc = (d) => {
+      nodeSizeFunc = d => {
         if (d.size) {
           if (isArray(d.size)) {
             const res = d.size[0] > d.size[1] ? d.size[0] : d.size[1];
             return res / 2 + nodeSpacingFunc(d);
-          }  if (isObject(d.size)) {
+          }
+          if (isObject(d.size)) {
             const res = d.size.width > d.size.height ? d.size.width : d.size.height;
             return res / 2 + nodeSpacingFunc(d);
           }
@@ -320,26 +319,23 @@ export class ForceLayout extends Base {
         return 10 + nodeSpacingFunc(d);
       };
     } else if (isFunction(nodeSize)) {
-      nodeSizeFunc = (d) => {
+      nodeSizeFunc = d => {
         const size = nodeSize(d);
         return size + nodeSpacingFunc(d);
       };
     } else if (isArray(nodeSize)) {
       const larger = nodeSize[0] > nodeSize[1] ? nodeSize[0] : nodeSize[1];
       const radius = larger / 2;
-      nodeSizeFunc = (d) => radius + nodeSpacingFunc(d);
+      nodeSizeFunc = d => radius + nodeSpacingFunc(d);
     } else if (isNumber(nodeSize)) {
       const radius = nodeSize / 2;
-      nodeSizeFunc = (d) => radius + nodeSpacingFunc(d);
+      nodeSizeFunc = d => radius + nodeSpacingFunc(d);
     } else {
       nodeSizeFunc = () => 10;
     }
 
     // forceCollide's parameter is a radius
-    simulation.force(
-      "collisionForce",
-      d3Force.forceCollide(nodeSizeFunc).strength(collideStrength)
-    );
+    simulation.force('collisionForce', d3Force.forceCollide(nodeSizeFunc).strength(collideStrength));
   }
 
   /**
@@ -374,8 +370,7 @@ function getSimulationTicks(simulation: any): number {
   const alphaTarget = simulation.alphaTarget();
   const alpha = simulation.alpha();
   const totalTicksFloat =
-    Math.log((alphaMin - alphaTarget) / (alpha - alphaTarget)) /
-    Math.log(1 - simulation.alphaDecay());
+    Math.log((alphaMin - alphaTarget) / (alpha - alphaTarget)) / Math.log(1 - simulation.alphaDecay());
   const totalTicks = Math.ceil(totalTicksFloat);
   return totalTicks;
 }
@@ -384,8 +379,5 @@ declare const WorkerGlobalScope: any;
 // 判断是否运行在web worker里
 function isInWorker(): boolean {
   // eslint-disable-next-line no-undef
-  return (
-    typeof WorkerGlobalScope !== "undefined" &&
-    self instanceof WorkerGlobalScope
-  );
+  return typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
 }
